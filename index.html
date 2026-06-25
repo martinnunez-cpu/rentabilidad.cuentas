@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rentabilidad por cuenta · Mayo 2026</title>
+<style>
+  :root{
+    --bg:#0B0F1A;
+    --panel:#111827;
+    --panel-2:#0F1623;
+    --card:#1A2233;
+    --card-hover:#1F2A40;
+    --line:#1F2937;
+    --line-2:#2A3447;
+    --ink:#E5E7EB;
+    --ink-2:#94A3B8;
+    --ink-3:#64748B;
+    --accent:#6366F1;
+    --red:#EF4444;
+    --red-bg:rgba(239,68,68,.12);
+    --amber:#F59E0B;
+    --amber-bg:rgba(245,158,11,.12);
+    --green:#10B981;
+    --green-bg:rgba(16,185,129,.12);
+    --blue:#3B82F6;
+    --blue-bg:rgba(59,130,246,.12);
+    --slate:#64748B;
+    --slate-bg:rgba(100,116,139,.12);
+    --shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 8px 24px rgba(0,0,0,.25);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif;
+    font-size:14px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .container{max-width:1400px;margin:0 auto;padding:32px 28px 60px}
+
+  /* HEADER */
+  header.hero{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    padding-bottom:22px;margin-bottom:28px;
+    border-bottom:1px solid var(--line);
+  }
+  .hero-left .eyebrow{
+    font-size:11px;color:var(--ink-3);letter-spacing:.18em;font-weight:600;
+    text-transform:uppercase;margin-bottom:8px;
+  }
+  .hero-left h1{
+    font-size:30px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px;
+  }
+  .hero-left .sub{color:var(--ink-2);font-size:14px}
+  .hero-right{text-align:right}
+  .hero-right .label{font-size:11px;color:var(--ink-3);letter-spacing:.12em;text-transform:uppercase;font-weight:600;margin-bottom:6px}
+  .hero-right .updated{font-size:13px;color:var(--ink-2)}
+  .hero-right .updated strong{color:var(--ink)}
+
+  /* KPI ROW */
+  .kpis{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px;
+  }
+  .kpi{
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:18px 18px 16px;
+    transition:border-color .15s ease;
+  }
+  .kpi:hover{border-color:var(--line-2)}
+  .kpi .lbl{
+    font-size:11px;color:var(--ink-3);letter-spacing:.1em;
+    text-transform:uppercase;font-weight:600;margin-bottom:10px;
+  }
+  .kpi .val{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+  .kpi .delta{font-size:12px;color:var(--ink-2);margin-top:6px}
+  .kpi .delta.pos{color:var(--green)}
+  .kpi .delta.neg{color:var(--red)}
+
+  /* PROGRESS OVERALL */
+  .progress-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:20px 22px;margin-bottom:32px;
+  }
+  .progress-card .head{
+    display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;
+  }
+  .progress-card .head h3{font-size:14px;font-weight:600;color:var(--ink)}
+  .progress-card .head .meta{font-size:12px;color:var(--ink-2)}
+  .progress-card .bar{
+    background:var(--card);height:8px;border-radius:99px;overflow:hidden;
+    display:flex;
+  }
+  .progress-card .seg{height:100%}
+  .progress-card .legend{
+    display:flex;gap:18px;margin-top:12px;font-size:12px;color:var(--ink-2);
+    flex-wrap:wrap;
+  }
+  .progress-card .dot{
+    display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;
+    vertical-align:middle;
+  }
+
+  /* FILTERS */
+  .filters{
+    display:flex;gap:8px;margin-bottom:18px;align-items:center;flex-wrap:wrap;
+  }
+  .filters .label{font-size:11px;color:var(--ink-3);letter-spacing:.12em;
+    text-transform:uppercase;font-weight:600;margin-right:6px}
+  .chip{
+    background:var(--panel);border:1px solid var(--line);color:var(--ink-2);
+    padding:6px 12px;border-radius:99px;font-size:12px;font-weight:500;
+    cursor:pointer;transition:all .15s ease;user-select:none;
+  }
+  .chip:hover{color:var(--ink);border-color:var(--line-2)}
+  .chip.active{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+  /* SECTION TITLE */
+  .section-title{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin:36px 0 16px;
+  }
+  .section-title h2{
+    font-size:18px;font-weight:700;letter-spacing:-.01em;
+  }
+  .section-title .hint{font-size:12px;color:var(--ink-3)}
+
+  /* ACCOUNT CARDS */
+  .accounts{display:flex;flex-direction:column;gap:14px}
+  .account{
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    overflow:hidden;transition:all .2s ease;
+  }
+  .account:hover{border-color:var(--line-2)}
+  .account.hidden{display:none}
+
+  .acc-head{
+    display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr auto;
+    gap:18px;align-items:center;padding:18px 22px;cursor:pointer;
+    transition:background .15s ease;
+  }
+  .acc-head:hover{background:var(--panel-2)}
+  .acc-name{display:flex;align-items:center;gap:14px}
+  .acc-name .marker{
+    width:6px;height:42px;border-radius:3px;flex-shrink:0;
+  }
+  .acc-name .txt h3{font-size:17px;font-weight:700;letter-spacing:-.01em}
+  .acc-name .txt .owner{font-size:12px;color:var(--ink-3);margin-top:2px}
+
+  .acc-metric{display:flex;flex-direction:column}
+  .acc-metric .lbl{
+    font-size:10px;color:var(--ink-3);letter-spacing:.1em;
+    text-transform:uppercase;font-weight:600;margin-bottom:4px;
+  }
+  .acc-metric .val{font-size:16px;font-weight:600;color:var(--ink)}
+  .acc-metric .val.muted{color:var(--ink-3)}
+  .acc-metric .val.red{color:var(--red)}
+  .acc-metric .val.amber{color:var(--amber)}
+  .acc-metric .val.green{color:var(--green)}
+
+  .acc-x{display:flex;align-items:center;gap:8px}
+  .acc-x .arrow{color:var(--ink-3);font-size:14px}
+
+  .badge{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600;
+    letter-spacing:.02em;white-space:nowrap;
+  }
+  .badge.crit{background:var(--red-bg);color:var(--red)}
+  .badge.rev{background:var(--amber-bg);color:var(--amber)}
+  .badge.ok{background:var(--green-bg);color:var(--green)}
+  .badge.pend{background:var(--blue-bg);color:var(--blue)}
+
+  .chevron{
+    color:var(--ink-3);font-size:18px;transition:transform .2s ease;
+    width:24px;text-align:center;
+  }
+  .account.open .chevron{transform:rotate(90deg);color:var(--ink)}
+
+  /* ACCOUNT BODY */
+  .acc-body{
+    display:none;padding:4px 22px 22px;border-top:1px solid var(--line);
+    background:var(--panel-2);
+  }
+  .account.open .acc-body{display:block}
+
+  .body-grid{
+    display:grid;grid-template-columns:1.5fr 1fr;gap:22px;margin-top:20px;
+  }
+
+  .panel-title{
+    font-size:11px;color:var(--ink-3);letter-spacing:.12em;
+    text-transform:uppercase;font-weight:600;margin-bottom:12px;
+  }
+
+  /* ACTIONS LIST */
+  .actions-list{display:flex;flex-direction:column;gap:8px}
+  .action{
+    background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px;display:grid;grid-template-columns:auto 1fr auto;
+    gap:14px;align-items:center;
+    transition:all .15s ease;
+  }
+  .action:hover{background:var(--card-hover);border-color:var(--line-2)}
+  .check{
+    width:22px;height:22px;border-radius:50%;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:700;
+  }
+  .check.done{background:var(--green);color:#fff}
+  .check.progress{background:var(--amber);color:#fff}
+  .check.todo{background:transparent;border:2px solid var(--ink-3);color:var(--ink-3)}
+  .check.blocked{background:var(--slate);color:#fff}
+  .action-text .title{font-size:14px;font-weight:500;color:var(--ink);line-height:1.4}
+  .action-text .meta{font-size:12px;color:var(--ink-3);margin-top:3px}
+  .action-text .meta .owner-tag{color:var(--ink-2);font-weight:500}
+  .impact{font-size:12px;color:var(--ink-2);font-weight:500;text-align:right;white-space:nowrap}
+  .impact.pos{color:var(--green)}
+
+  /* PROJECTION PANEL */
+  .projection{
+    background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:16px 18px;
+  }
+  .proj-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:10px 0;border-bottom:1px solid var(--line);
+  }
+  .proj-row:last-child{border-bottom:none}
+  .proj-row .lbl{font-size:12px;color:var(--ink-2)}
+  .proj-row .val{font-size:18px;font-weight:700;letter-spacing:-.01em}
+  .proj-row .val.green{color:var(--green)}
+  .proj-row .val.amber{color:var(--amber)}
+  .proj-row .val.red{color:var(--red)}
+  .proj-row .val.muted{color:var(--ink-3)}
+
+  .note{
+    margin-top:12px;padding:11px 13px;background:rgba(99,102,241,.08);
+    border:1px solid rgba(99,102,241,.18);border-radius:8px;
+    font-size:12px;color:var(--ink-2);line-height:1.5;
+  }
+  .note strong{color:var(--ink)}
+
+  /* OWNERS PANEL */
+  .owners-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px;
+  }
+  .owner-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:18px;
+  }
+  .owner-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .owner-avatar{
+    width:38px;height:38px;border-radius:50%;
+    background:var(--card);display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:14px;
+  }
+  .owner-info h4{font-size:15px;font-weight:700}
+  .owner-info .role{font-size:12px;color:var(--ink-3)}
+  .owner-stats{
+    display:flex;gap:14px;padding-top:10px;border-top:1px solid var(--line);
+    font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;
+    font-weight:600;margin-bottom:12px;
+  }
+  .owner-stats span strong{
+    display:block;font-size:18px;font-weight:700;color:var(--ink);
+    letter-spacing:0;text-transform:none;margin-bottom:2px;
+  }
+  .owner-stats .done-stat strong{color:var(--green)}
+  .owner-stats .prog-stat strong{color:var(--amber)}
+  .owner-stats .todo-stat strong{color:var(--ink-2)}
+  .owner-tasks{display:flex;flex-direction:column;gap:6px;font-size:13px}
+  .owner-tasks li{
+    list-style:none;padding-left:20px;position:relative;color:var(--ink-2);
+  }
+  .owner-tasks li::before{
+    content:"";position:absolute;left:4px;top:8px;width:6px;height:6px;
+    border-radius:50%;
+  }
+  .owner-tasks li.done::before{background:var(--green)}
+  .owner-tasks li.progress::before{background:var(--amber)}
+  .owner-tasks li.todo::before{background:transparent;border:1.5px solid var(--ink-3)}
+
+  /* FOOTER */
+  footer{
+    margin-top:48px;padding-top:20px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;color:var(--ink-3);font-size:12px;
+  }
+
+  @media (max-width: 900px){
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .acc-head{grid-template-columns:1fr auto;gap:12px}
+    .acc-metric{display:none}
+    .acc-x{display:flex}
+    .body-grid{grid-template-columns:1fr}
+    .owners-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-left">
+      <div class="eyebrow">Rentabilidad operacional · Cliente Ops</div>
+      <h1>Rentabilidad por cuenta</h1>
+      <div class="sub">Estado actual, acciones en curso y proyección Junio-Julio</div>
+    </div>
+    <div class="hero-right">
+      <div class="label">Última actualización</div>
+      <div class="updated"><strong>25 jun 2026</strong> · Mart</div>
+    </div>
+  </header>
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi">
+      <div class="lbl">Cuentas en revisión</div>
+      <div class="val">4 <span style="font-size:16px;color:var(--ink-3);font-weight:500">/ 5</span></div>
+      <div class="delta">Dietrich pendiente reunión</div>
+    </div>
+    <div class="kpi">
+      <div class="lbl">X promedio actual</div>
+      <div class="val">1.14<span style="font-size:18px;color:var(--ink-3)">x</span></div>
+      <div class="delta neg">−0.36 vs target 1.5x</div>
+    </div>
+    <div class="kpi">
+      <div class="lbl">X promedio Julio (proy.)</div>
+      <div class="val">1.42<span style="font-size:18px;color:var(--ink-3)">x</span></div>
+      <div class="delta pos">+0.28 vs Mayo</div>
+    </div>
+    <div class="kpi">
+      <div class="lbl">Acciones definidas</div>
+      <div class="val">19</div>
+      <div class="delta">7 hechas · 6 en curso · 6 por hacer</div>
+    </div>
+  </div>
+
+  <!-- OVERALL PROGRESS -->
+  <div class="progress-card">
+    <div class="head">
+      <h3>Avance global del plan</h3>
+      <div class="meta">19 acciones definidas</div>
+    </div>
+    <div class="bar">
+      <div class="seg" style="width:36.8%;background:var(--green)"></div>
+      <div class="seg" style="width:31.6%;background:var(--amber)"></div>
+      <div class="seg" style="width:31.6%;background:var(--ink-3)"></div>
+    </div>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--green)"></span>Hechas <strong style="color:var(--ink)">7</strong></span>
+      <span><span class="dot" style="background:var(--amber)"></span>En curso <strong style="color:var(--ink)">6</strong></span>
+      <span><span class="dot" style="background:var(--ink-3)"></span>Por hacer <strong style="color:var(--ink)">6</strong></span>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters">
+    <span class="label">Filtrar</span>
+    <span class="chip active" data-filter="all">Todas (5)</span>
+    <span class="chip" data-filter="crit">Crítico (1)</span>
+    <span class="chip" data-filter="rev">Revisión (3)</span>
+    <span class="chip" data-filter="pend">Pendiente (1)</span>
+  </div>
+
+  <!-- ACCOUNTS -->
+  <div class="section-title">
+    <h2>Cuentas</h2>
+    <div class="hint">Click en cada cuenta para ver detalle</div>
+  </div>
+
+  <div class="accounts" id="accounts">
+
+    <!-- KIEHLS -->
+    <div class="account" data-status="crit">
+      <div class="acc-head">
+        <div class="acc-name">
+          <div class="marker" style="background:var(--red)"></div>
+          <div class="txt">
+            <h3>Kiehls</h3>
+            <div class="owner">Owner · Mart + Lele</div>
+          </div>
+        </div>
+        <div class="acc-metric"><div class="lbl">Incomes Mayo</div><div class="val">$6,084</div></div>
+        <div class="acc-metric"><div class="lbl">Rentabilidad</div><div class="val red">−$527</div></div>
+        <div class="acc-metric">
+          <div class="lbl">X Mayo → Julio</div>
+          <div class="acc-x">
+            <span class="val red">0.92x</span>
+            <span class="arrow">→</span>
+            <span class="val muted">1.31x</span>
+          </div>
+        </div>
+        <div class="acc-metric"><div class="lbl">Estado</div><span class="badge crit">● Crítico</span></div>
+        <div class="chevron">›</div>
+      </div>
+
+      <div class="acc-body">
+        <div class="body-grid">
+          <div>
+            <div class="panel-title">Acciones</div>
+            <div class="actions-list">
+
+              <div class="action">
+                <div class="check progress">⏱</div>
+                <div class="action-text">
+                  <div class="title">Switch de perfiles: Daro (Sr) → Renny (Semi-Sr)</div>
+                  <div class="meta"><span class="owner-tag">Mart + Lele</span> · Se comunica mañana</div>
+                </div>
+                <div class="impact pos">−$357</div>
+              </div>
+
+              <div class="action">
+                <div class="check progress">⏱</div>
+                <div class="action-text">
+                  <div class="title">Implementación Manus en Content (−50 hs)</div>
+                  <div class="meta"><span class="owner-tag">Lele</span> · Capacitación hecha · Ejecuta Julio</div>
+                </div>
+                <div class="impact pos">−$753</div>
+              </div>
+
+              <div class="action">
+                <div class="check progress">⏱</div>
+                <div class="action-text">
+                  <div class="title">Reducción horas Accounts (−10% reuniones externas)</div>
+                  <div class="meta"><span class="owner-tag">Mart</span> · Se comunica mañana</div>
+                </div>
+                <div class="impact pos">−$20</div>
+              </div>
+
+              <div class="action">
+                <div class="check done">✓</div>
+                <div class="action-text">
+                  <div class="title">No contratación de freelos</div>
+                  <div class="meta"><span class="owner-tag">Mart</span> · Aplicado desde Junio</div>
+                </div>
+                <div class="impact pos">−$852</div>
+              </div>
+
+              <div class="action">
+                <div class="check todo">○</div>
+                <div class="action-text">
+                  <div class="title">Llegar a 30hs totales en gestión Content</div>
+                  <div class="meta"><span class="owner-tag">Lele</span> · Meta Agosto</div>
+                </div>
+                <div class="impact">Agosto</div>
+              </div>
+
+            </div>
+          </div>
+
+          <div>
+            <div class="panel-title">Proyección</div>
+            <div class="projection">
+              <div class="proj-row">
+                <span class="lbl">Junio (parcial)</span>
+                <span class="val amber">~1.06x</span>
+              </div>
+              <div class="proj-row">
+                <span class="lbl">Julio</span>
+                <span class="val amber">1.31x</span>
+              </div>
+              <div class="proj-row">
+                <span class="lbl">Agosto</span>
+                <span class="val amber">1.42x</span>
+              </div>
+              <div class="proj-row">
+                <span class="lbl">Ahorro total Julio</span>
+                <span class="val green">$1,982</span>
+              </div>
+            </div>
+            <div class="note">
+              <strong>Lectura:</strong> Mejora gradual mes a mes. Junio mejora solo por la salida de freelos; el grueso del impacto llega en Julio con switch de perfiles + Manus. Sigue por debajo del target 1.5x.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEYEL -->
+    <div class="account" data-status="rev">
+      <div class="acc-head">
+        <div class="acc-name">
+          <div class="marker" style="background:var(--amber)"></div>
+          <div class="txt">
+            <h3>Deyel / Optaris</h3>
+            <div class="owner">Owner · Mart + Aye</div>
+          </div>
+        </div>
+        <div class="acc-metric"><div class="lbl">Incomes Mayo</div><div class="val">$1,006</div></div>
+        <div class="acc-metric"><div class="lbl">Rentabilidad</div><div class="val">$147</div></div>
+        <div class="acc-metric">
+          <div class="lbl">X Mayo → Junio</div>
+          <div class="acc-x">
+            <span class="val amber">1.17x</span>
+            <span class="arrow">→</span>
+            <span class="val green">1.55x</span>
+          </div>
+        </div>
+        <div class="acc-metric"><div class="lbl">Estado</div><span class="badge rev">● Revisión</span></div>
+        <div class="chevron">›</div>
+      </div>
+
+      <div class="acc-body">
+        <div class="body-grid">
+          <div>
+            <div class="panel-title">Acciones</div>
+            <div class="actions-list">
+
+              <div class="action">
+                <div class="check done">✓</div>
+                <div class="action-text">
+                  <div class="title">Eliminación del perfil de Account</div>
+                  <div class="meta"><span class="owner-tag">Mart</span> · Ya accionado</div>
+                </div>
+                <div class="impact pos">−$197</div>
+              </div>
+
+              <div class="action">
+                <div class="check done">✓</div>
+                <div class="action-text">
+                  <div class="title">Cap de horas Medios en 18hs máx mensuales</div>
+                  <div class="meta"><span class="owner-tag">Mart</span> · Equipo alineado al target</div>
+                </div>
+                <div class="impact">Sin impacto $ directo</div>
+              </div>
+
+              <div class="action">
+                <div class="check done">✓</div>
+                <div class="action-text">
+                  <div class="title">Salida del costo de Gonza desde Junio</div>
+                  <div class="meta"><span class="owner-tag">Mart + Mel</span> · Confirmado</div>
+                </div>
+                <div class="impact pos">−$43</div>
+              </div>
+
+              <div class="action">
+                <div class="check todo">○</div>
+                <div class="action-text">
+                  <div class="title">Revisión procesos reporting Medios</div>
+                  <div class="meta"><span class="owner-tag">Aye</span> · Por accionar · Julio</div>
+                </div>
+                <div class="impact">Julio</div>
+              </div>
+
+              <div class="action">
+                <div class="check todo">○</div>
+                <div class="action-text">
+                  <div class="title">Evaluación automatizaciones seguimiento campañas</div>
+                  <div class="meta"><span class="owner-tag">Aye</span> · Por accionar · Julio</div>
+                </div>
+                <div class="impact">Julio</div>
+              </div>
+
+            </div>
+          </div>
+
+          <div>
+            <div class="panel-title">Proyección</div>
+            <div class="projection">
+              <div class="proj-row">
+                <span class="lbl">Junio (proyectado)</span>
+                <span class="val green">1.55x</span>
+              </div>
+              <div class="proj-row">
+                <span class="lbl">Costos</span>
+                <span class="val">$648</span>
+              </div>
+              <div class="proj-row">
+                <span class="lbl">Rentabilidad</span>
+                <span class="val green">$358</span>
+              </div>
+              <div class="proj-row">
+                <span class="lbl">Mejora vs Mayo</span>
+                <span class="val green">+143%</span>
+              </div>
+            </div>
+            <div class="note">
+              <strong>A considerar:</strong> Medios absorbe ~20hs de gestión post salida de Agus. Manteniendo ese tope la X proyectada se sostiene en 1.55x. Sin la absorción llegaría a 1.63x (no realista).
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UPRO -->
+    <div class="account" data-status="rev">
+      <div class="acc-head">
+        <div class="acc-name">
+          <div class="marker" style="background:var(--amber)"></div>
+          <div class="txt">
+            <h3>UPRO · Unilever Profesional</h3>
+            <div class="owner">Owner · Mart + Lele</div>
+          </div>
+        </div>
+        <div class="acc-metric"><div class="lbl">Incomes Mayo</div><div class="val">$7,068</div></div>
+        <div class="acc-metric"><div class="lbl">Rentabilidad</div><div class="val">$1,189</div></div>
+        <div class="acc-metric">
+          <div class="lbl">X Mayo → Julio</div>
+          <div class="acc-x">
+            <span class="val amber">1.20x</span>
+            <span class="arrow">→</span>
+            <span class="val amber">1.33x</span>
+          </div>
+        </div>
+        <div class="acc-metric"><div class="lbl">Estado</div><span class="badge rev">● Revisión</span></div>
+        <div class="chevron">›</div>
+      </div>
+
+      <div class="acc-body">
+        <div class="body-grid">
+          <div>
+            <div class="panel-title">Acciones</div>
+            <div class="actions-list">
+
+              <div class="action">
+                <div class="check done">✓</div>
+                <div class="action-text">
+                  <div class="title">Reducción de costo de freelo</div>
+                  <div class="meta"><span class="owner-tag">Mart</span> · Ya accionado</div>
+                </div>
+                <div class="impact pos">Parcial Junio</div>
+              </div>
+
+              <div class="action">
+                <div class="check progress">⏱</div>
+                <div class="action-text">
+                  <div class="title">Implementación Manus para perfil Content</div>
+                  <div class="meta"><span class="owner-tag">Lele</span> · En proceso · Impacto Julio</div>
+                </div>
+                <div class="impact">Julio</div>
+              </div>
+
+              <div class="action">
+                <div class="check todo">○</div>
+                <div class="action-text">
+                  <div class="title">Reducción horas Sofi (−80 hs)</div>
+                  <div class="meta"><span class="owner-tag">Lele</span> · Plan Julio</div>
+                </div>
+                <div class="impact pos">−$846</div>
+              </div>
+
+              <div class="action">
+                <div class="check todo">○</div>
+                <div class="action-text">
+                  <div class="title">Sin costo de freelos desde Julio</div>
+                  <div class="meta"><span class="owner-tag">Mart</span> · Confirmado para Julio</div>
+                </div>
+                <div class="impact pos">−$359</div>
+              </div>
+
+            </div>
+          </div>
+
+          <div>
+            <div class="panel-title">Proyección</div>
+            <div class="projection">
+              <div class="proj-row">
+                <span class="lbl">Junio</span>
+                <span class="val amber">~1.20x</span>
+              </div>
+              <div class="proj-row">
+                <span class="lbl">Julio</span>
+                <span class="val amber">1.33x</span>
+              </div>
+              <div class="proj-row">
+                <span class="lbl">Gap hacia 1.5x</span>
+                <span class="val">$586</span>
+              </div>
+              <div class="proj-row">
+                <span class="lbl">Recorte total Julio</span>
+                <span class="val green">$1,205</span>
+              </div>
+            </div>
+            <div class="note">
+              <strong>Junio mantiene X de Mayo:</strong> misma carga de horas + freelo (a menor costo). El impacto real entra en Julio cuando se libera la dedicación de Sofi y se elimina el freelo.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FRYMA -->
+    <div class="account" data-status="rev">
+      <div class="acc-head">
+        <div class="acc-name">
+          <div class="marker" style="background:var(--amber)"></div>
+          <div class="txt">
+            <h3>Fryma</h3>
+            <div class="owner">Owner · Mart + Lele</div>
+          </div>
+        </div>
+        <div class="acc-metric"><div class="lbl">Incomes Mayo</div><div class="val">$2,664</div></div>
+        <div class="acc-metric"><div class="lbl">Rentabilidad</div><div class="val">$542</div></div>
+        <div class="acc-metric">
+          <div class="lbl">X Mayo → Julio</div>
+          <div class="acc-x">
+            <span class="val amber">1.26x</span>
+            <span class="arrow">→</span>
+            <span class="val amber">1.49x</span>
+          </div>
+        </div>
+        <div class="acc-metric"><div class="lbl">Estado</div><span class="badge rev">● Revisión</span></div>
+        <div class="chevron">›</div>
+      </div>
+
+      <div class="acc-body">
+        <div class="body-grid">
+          <div>
+            <div class="panel-title">Acciones</div>
+            <div class="actions-list">
+
+              <div class="action">
+                <div class="check done">✓</div>
+                <div class="action-text">
+                  <div class="title">Cambio de perfil Sr → Semi-Sr</div>
+                  <div class="meta"><span class="owner-tag">Mart + Lele</span> · Hecho · Impacto Julio</div>
+                </div>
+                <div class="impact pos">−$90</div>
+              </div>
+
+              <div class="action">
+                <div class="check progress">⏱</div>
+                <div class="action-text">
+                  <div class="title">Reducción horas Content con IA (foco Sofi)</div>
+                  <div class="meta"><span class="owner-tag">Lele</span> · Implementándose · Impacto Julio</div>
+                </div>
+                <div class="impact pos">−$242</div>
+              </div>
+
+              <div class="action">
+                <div class="check progress">⏱</div>
+                <div class="action-text">
+                  <div class="title">Bajada al AM y comunicación al equipo</div>
+                  <div class="meta"><span class="owner-tag">Mart</span> · En proceso</div>
+                </div>
+                <div class="impact">Sin impacto $ directo</div>
+              </div>
+
+              <div class="action">
+                <div class="check done">✓</div>
+                <div class="action-text">
+                  <div class="title">Medios y Accounts dentro del target de horas</div>
+                  <div class="meta"><span class="owner-tag">Mart</span> · Confirmado lectura Mayo</div>
+                </div>
+                <div class="impact">Monitoreo</div>
+              </div>
+
+            </div>
+          </div>
+
+          <div>
+            <div class="panel-title">Proyección</div>
+            <div class="projection">
+              <div class="proj-row">
+                <span class="lbl">Julio (proyectado)</span>
+                <span class="val amber">1.49x</span>
+              </div>
+              <div class="proj-row">
+                <span class="lbl">Ahorro total</span>
+                <span class="val green">$332</span>
+              </div>
+              <div class="proj-row">
+                <span class="lbl">Rentabilidad</span>
+                <span class="val green">$874</span>
+              </div>
+              <div class="proj-row">
+                <span class="lbl">Gap hacia 1.5x</span>
+                <span class="val">$14</span>
+              </div>
+            </div>
+            <div class="note">
+              <strong>Casi en zona saludable:</strong> con $14 más de optimización se cruza el umbral 1.5x. Buen candidato para empezar a evaluar conversación de fee en Q4.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIETRICH -->
+    <div class="account" data-status="pend">
+      <div class="acc-head">
+        <div class="acc-name">
+          <div class="marker" style="background:var(--blue)"></div>
+          <div class="txt">
+            <h3>Dietrich</h3>
+            <div class="owner">Owner · Mart</div>
+          </div>
+        </div>
+        <div class="acc-metric"><div class="lbl">Incomes Mayo</div><div class="val muted">—</div></div>
+        <div class="acc-metric"><div class="lbl">Rentabilidad</div><div class="val muted">—</div></div>
+        <div class="acc-metric">
+          <div class="lbl">X Mayo → Julio</div>
+          <div class="acc-x">
+            <span class="val muted">—</span>
+          </div>
+        </div>
+        <div class="acc-metric"><div class="lbl">Estado</div><span class="badge pend">● Pendiente</span></div>
+        <div class="chevron">›</div>
+      </div>
+
+      <div class="acc-body">
+        <div class="body-grid">
+          <div>
+            <div class="panel-title">Acciones</div>
+            <div class="actions-list">
+
+              <div class="action">
+                <div class="check todo">○</div>
+                <div class="action-text">
+                  <div class="title">Coordinar reunión con cliente</div>
+                  <div class="meta"><span class="owner-tag">Mart</span> · Pendiente agenda</div>
+                </div>
+                <div class="impact">Bloqueante</div>
+              </div>
+
+              <div class="action">
+                <div class="check blocked">⏸</div>
+                <div class="action-text">
+                  <div class="title">Definir scope final de servicios</div>
+                  <div class="meta"><span class="owner-tag">Mart</span> · Depende de reunión</div>
+                </div>
+                <div class="impact">Bloqueado</div>
+              </div>
+
+              <div class="action">
+                <div class="check blocked">⏸</div>
+                <div class="action-text">
+                  <div class="title">Elaborar plan de acción con impacto en X</div>
+                  <div class="meta"><span class="owner-tag">Mart</span> · Depende de scope</div>
+                </div>
+                <div class="impact">Bloqueado</div>
+              </div>
+
+            </div>
+          </div>
+
+          <div>
+            <div class="panel-title">Estado</div>
+            <div class="projection">
+              <div class="proj-row">
+                <span class="lbl">Estado actual</span>
+                <span class="val muted">Esperando outcome</span>
+              </div>
+              <div class="proj-row">
+                <span class="lbl">Próximo hito</span>
+                <span class="val">Reunión cliente</span>
+              </div>
+              <div class="proj-row">
+                <span class="lbl">Owner del unblock</span>
+                <span class="val">Mart</span>
+              </div>
+            </div>
+            <div class="note">
+              <strong>A la espera</strong> de outcome de reunión con el cliente para entender el panorama de servicios finales. Una vez definido, se plantea y ejecuta el plan de acción correspondiente.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- OWNERS -->
+  <div class="section-title">
+    <h2>Vista por owner</h2>
+    <div class="hint">Acciones agrupadas por responsable</div>
+  </div>
+
+  <div class="owners-grid">
+    <div class="owner-card">
+      <div class="owner-head">
+        <div class="owner-avatar" style="background:rgba(99,102,241,.15);color:var(--accent)">L</div>
+        <div class="owner-info">
+          <h4>Lele</h4>
+          <div class="role">Líder de Contenido</div>
+        </div>
+      </div>
+      <div class="owner-stats">
+        <span class="done-stat"><strong>0</strong>Hechas</span>
+        <span class="prog-stat"><strong>3</strong>En curso</span>
+        <span class="todo-stat"><strong>3</strong>Por hacer</span>
+      </div>
+      <ul class="owner-tasks">
+        <li class="progress">Manus Kiehls (capacitación hecha)</li>
+        <li class="progress">Manus UPRO</li>
+        <li class="progress">Reducción horas Content Fryma (Sofi)</li>
+        <li class="todo">Switch Daro → Renny (Kiehls)</li>
+        <li class="todo">Reducción 80hs Sofi (UPRO)</li>
+        <li class="todo">Llegar a 30hs gestión Content (Kiehls · Ago)</li>
+      </ul>
+    </div>
+
+    <div class="owner-card">
+      <div class="owner-head">
+        <div class="owner-avatar" style="background:rgba(245,158,11,.15);color:var(--amber)">A</div>
+        <div class="owner-info">
+          <h4>Aye</h4>
+          <div class="role">Líder de Medios</div>
+        </div>
+      </div>
+      <div class="owner-stats">
+        <span class="done-stat"><strong>0</strong>Hechas</span>
+        <span class="prog-stat"><strong>0</strong>En curso</span>
+        <span class="todo-stat"><strong>2</strong>Por hacer</span>
+      </div>
+      <ul class="owner-tasks">
+        <li class="todo">Revisión procesos reporting Medios (Deyel)</li>
+        <li class="todo">Evaluación automatizaciones campañas (Deyel)</li>
+      </ul>
+    </div>
+
+    <div class="owner-card">
+      <div class="owner-head">
+        <div class="owner-avatar" style="background:rgba(16,185,129,.15);color:var(--green)">M</div>
+        <div class="owner-info">
+          <h4>Mart</h4>
+          <div class="role">Client Ops Lead</div>
+        </div>
+      </div>
+      <div class="owner-stats">
+        <span class="done-stat"><strong>6</strong>Hechas</span>
+        <span class="prog-stat"><strong>3</strong>En curso</span>
+        <span class="todo-stat"><strong>1</strong>Por hacer</span>
+      </div>
+      <ul class="owner-tasks">
+        <li class="done">Eliminación perfil Account (Deyel)</li>
+        <li class="done">Cap horas Medios 18hs (Deyel)</li>
+        <li class="done">Salida costo Gonza con Mel (Deyel)</li>
+        <li class="done">No freelos Kiehls</li>
+        <li class="done">Reducción costo freelo UPRO</li>
+        <li class="progress">Comunicación switch Kiehls (mañana)</li>
+        <li class="progress">Reducción horas Accounts (Kiehls)</li>
+        <li class="progress">Bajada al AM Fryma</li>
+        <li class="todo">Coordinar reunión cliente Dietrich</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    <div>Rentabilidad por cuenta · Mayo 2026 · Mart</div>
+    <div>v1.0 · Actualizable</div>
+  </footer>
+
+</div>
+
+<script>
+  // Toggle expand
+  document.querySelectorAll('.acc-head').forEach(head => {
+    head.addEventListener('click', () => {
+      head.parentElement.classList.toggle('open');
+    });
+  });
+
+  // Filters
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      const f = chip.dataset.filter;
+      document.querySelectorAll('.account').forEach(acc => {
+        if (f === 'all' || acc.dataset.status === f) {
+          acc.classList.remove('hidden');
+        } else {
+          acc.classList.add('hidden');
+        }
+      });
+    });
+  });
+
+  // Auto-open first one for the management to see immediately what's inside
+  document.querySelector('.account').classList.add('open');
+</script>
+
+</body>
+</html>
